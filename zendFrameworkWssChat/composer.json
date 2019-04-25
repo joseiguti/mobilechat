@@ -1,0 +1,30 @@
+{
+  "name" : "ccm-dev",
+  "require" : {
+    "tyrola/xmpphp" : "v2.0",
+    "cboden/ratchet" : "v0.3.6",
+    "react/socket" : "v0.4.6",
+    "react/event-loop" : "v0.4.3",
+    "react/stream" : "v0.4.6",
+    "evenement/evenement" : "v2.0.0",
+    "guzzle/http" : "v3.9.2",
+    "guzzle/parser" : "v3.9.2",
+    "guzzle/stream" : "v3.9.2",
+    "guzzle/common" : "v3.9.2",
+    "symfony/event-dispatcher" : "v3.2.8",
+    "symfony/http-foundation" : "v3.2.8",
+    "symfony/routing" : "v3.2.8",
+    "zendframework/zendframework" : "2.4.11",
+    "zendframework/zendxml" : "1.0.2",
+    "facebook/php-sdk-v4" : "5.5.0",
+    "t4web/websocket" : "dev-master",
+    "zendframework/zend-servicemanager" : "2.5.0",
+    "zendframework/zend-json" : "~2.5.0",
+    "zendframework/zend-stdlib" : "2.7.0",
+    "zendframework/zend-console" : "2.5.1"
+  },
+  "repositories" : [ {
+    "type" : "composer",
+    "url" : "https://packagist.org/"
+  } ]
+}

@@ -1,0 +1,66 @@
+cmake_minimum_required(VERSION 2.6)
+
+project (chatmobile CXX)
+
+set(CHATMOBILE_HEADERS chatMobile.h)
+
+set(PROJECT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
+set(CHATMOBILE_CODEGEN_DIR "${PROJECT_BINARY_DIR}/codegen")
+
+PREPEND(CHATMOBILE_HEADERS_PATHS ${PROJECT_SOURCE_DIR} ${CHATMOBILE_HEADERS})
+
+CODEGEN_FILES(CHATMOBILE_CODEGEN_SOURCES ${CHATMOBILE_CODEGEN_DIR} ${CHATMOBILE_HEADERS})
+
+add_custom_command(OUTPUT ${CHATMOBILE_CODEGEN_SOURCES}
+    COMMAND ${NGREST_BIN_PATH}ngrestcg -i "${PROJECT_SOURCE_DIR}" -o ${CHATMOBILE_CODEGEN_DIR} -t service ${CHATMOBILE_HEADERS}
+    DEPENDS ${CHATMOBILE_HEADERS_PATHS}
+)
+
+file(GLOB CHATMOBILE_SOURCES ${PROJECT_SOURCE_DIR}/*.cpp)
+
+list(APPEND CHATMOBILE_SOURCES ${CHATMOBILE_CODEGEN_SOURCES})
+### ngrest-db BEGIN
+
+FUNCTION(CODEGEN_FILES_DB outVar prefix)
+   SET(listVar "")
+   FOREACH(file ${ARGN})
+      get_filename_component(fileBase "${file}" NAME_WE)
+      LIST(APPEND listVar "${prefix}/${fileBase}Entities.h")
+      LIST(APPEND listVar "${prefix}/${fileBase}Entities.cpp")
+   ENDFOREACH(file)
+   SET(${outVar} "${listVar}" PARENT_SCOPE)
+ENDFUNCTION(CODEGEN_FILES_DB)
+
+
+set(CHATMOBILE_DB_CODEGEN_DIR "${PROJECT_BINARY_DIR}/codegen-ngrest-db")
+
+PREPEND(CHATMOBILE_DB_HEADERS_PATHS ${PROJECT_SOURCE_DIR} ${CHATMOBILE_HEADERS})
+
+CODEGEN_FILES_DB(CHATMOBILE_DB_CODEGEN_SOURCES ${CHATMOBILE_DB_CODEGEN_DIR} ${CHATMOBILE_HEADERS})
+
+add_custom_command(OUTPUT ${CHATMOBILE_DB_CODEGEN_SOURCES}
+    COMMAND ${NGREST_BIN_PATH}ngrestcg -i "${PROJECT_SOURCE_DIR}" -o ${CHATMOBILE_DB_CODEGEN_DIR} -t dbentity ${CHATMOBILE_HEADERS}
+    DEPENDS ${CHATMOBILE_HEADERS_PATHS}
+)
+
+list(APPEND CHATMOBILE_SOURCES ${CHATMOBILE_DB_CODEGEN_SOURCES})
+
+include_directories(${PROJECT_SOURCE_DIR} ${CHATMOBILE_DB_CODEGEN_DIR})
+
+### ngrest-db END
+
+include_directories(${PROJECT_SOURCE_DIR} $ENV{NGREST_EXT_INCLUDES})
+
+add_library(chatmobile MODULE ${CHATMOBILE_SOURCES})
+
+set_target_properties(chatmobile PROPERTIES PREFIX "")
+set_target_properties(chatmobile PROPERTIES
+    LIBRARY_OUTPUT_DIRECTORY "${PROJECT_SERVICES_DIR}"
+)
+
+target_link_libraries(chatmobile ngrestutils ngrestcommon ngrestjson ngrestengine $ENV{NGREST_EXT_LIBS})
+### ngrest-db BEGIN
+
+target_link_libraries(chatmobile ngrestdbcommon ngrestdbsqlite)
+
+### ngrest-db END
